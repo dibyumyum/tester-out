@@ -1,28 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>HCHS Latin Club Connections #1</title>
+  <meta charset="UTF-8" />
+  <title>HCHS Latin Club Connections Game</title>
   <style>
     body {
       font-family: sans-serif;
       text-align: center;
-      margin: 20px;
+      padding: 20px;
     }
 
-    .top-bar {
+    .bar {
       display: flex;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      margin-bottom: 20px;
+      margin: 10px 0;
+      padding: 10px;
+      border-radius: 8px;
+      color: white;
+      font-weight: bold;
     }
 
-    .group-bar {
-      background-color: gold;
-      padding: 8px;
-      margin: 5px;
-      border-radius: 8px;
+    .green { background-color: #6aaa64; }
+    .yellow { background-color: #c9b458; }
+    .blue { background-color: #85c1e9; }
+    .purple { background-color: #af7ac5; }
+
+    .category-title {
       font-weight: bold;
+      margin-bottom: 5px;
     }
 
     .grid {
@@ -30,15 +36,15 @@
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
       max-width: 600px;
-      margin: 0 auto 20px;
+      margin: 20px auto;
     }
 
     .tile {
       border: 2px solid #ccc;
       padding: 15px;
+      background-color: #f2f2f2;
       cursor: pointer;
-      background-color: #f0f0f0;
-      border-radius: 6px;
+      border-radius: 8px;
       user-select: none;
       font-weight: bold;
     }
@@ -47,8 +53,9 @@
       background-color: #ffeeba;
     }
 
-    #message {
-      margin: 10px;
+    .feedback {
+      margin: 15px;
+      font-size: 1.1em;
       font-weight: bold;
     }
 
@@ -62,153 +69,175 @@
     .circle {
       width: 20px;
       height: 20px;
-      background-color: grey;
       border-radius: 50%;
+      background-color: gray;
+    }
+
+    .circle.used {
+      background-color: lightgray;
     }
 
     button {
-      margin-top: 10px;
       padding: 10px 20px;
-      font-weight: bold;
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #1976d2;
+      margin-top: 15px;
+      font-size: 1em;
     }
   </style>
 </head>
 <body>
-  <div class="top-bar" id="topBar"></div>
+
+  <h1>Connections</h1>
+
+  <!-- Solved categories will go here -->
+  <div id="solved-categories"></div>
+
+  <!-- Puzzle grid -->
   <div class="grid" id="grid"></div>
+
   <button onclick="checkGuess()">Check</button>
-  <div id="message"></div>
-  <div class="mistakes" id="mistakesBar"></div>
+  <div class="feedback" id="feedback"></div>
+
+  <!-- Mistake tracker -->
+  <div class="mistakes" id="mistake-tracker"></div>
+
   <script>
-    const allWords = [
-      "cantare", "clamare", "dicere", "susurrare",  // Group 1
-      "facere", "creare", "interficere", "iudicare", // Group 2
-      "stare", "currere", "cadere", "caedere",       // Group 3
-      "dare", "putare", "occidere", "caedere"        // Group 4
+    const puzzleWords = [
+      "Commodus", "Valerius","Sextus", "Domitian", "Aelius", "Plautius", "Quintus", "Grumio", "Secundus", "Nero", "Decimus", "Julius", "Salvius", "Elagabalus", "Rufus", "Caligula"
     ];
 
-    const solutionGroups = [
-      ["cantare", "clamare", "dicere", "susurrare"],
-      ["facere", "creare", "interficere", "iudicare"],
-      ["stare", "currere", "cadere", "caedere"],
-      ["dare", "putare", "occidere", "caedere"]
+    const categories = [
+      { name: "Ordinal Praenomina", words: ["Secundus", "Quintus", "Sextus", "Decimus"], color: "yellow" },
+      { name: "Characters from the Cambridge Latin Course", words: ["Rufus", "Salvius", "Grumio", "Domitian"], color: "green" },
+      { name: "Mad Emperors Club", words: ["Caligula", "Nero", "Commodus", "Elagabalus"], color: "blue" },
+      { name: "Masculine Forms of Claudius’ Wives’ Common Names", words: ["Plautius", "Aelius", "Valerius", "Julius"], color: "purple" }
     ];
 
-    let remainingWords = [...allWords]; // keeps order fixed
-    let selectedWords = [];
-    let foundGroups = [];
-    let maxMistakes = 10;
+    let selected = [];
+    let found = [];
     let mistakes = 0;
+    const maxMistakes = 10;
 
-    const gridEl = document.getElementById("grid");
-    const topBarEl = document.getElementById("topBar");
-    const messageEl = document.getElementById("message");
-    const mistakesEl = document.getElementById("mistakesBar");
+    const gridDiv = document.getElementById("grid");
+    const feedback = document.getElementById("feedback");
+    const solvedDiv = document.getElementById("solved-categories");
+    const mistakeTracker = document.getElementById("mistake-tracker");
 
-    function renderMistakes() {
-      mistakesEl.innerHTML = "";
-      for (let i = 0; i < maxMistakes - mistakes; i++) {
+    function init() {
+      puzzleWords.forEach(word => {
+        const div = document.createElement("div");
+        div.className = "tile";
+        div.textContent = word;
+        div.onclick = () => toggleSelect(div, word);
+        gridDiv.appendChild(div);
+      });
+
+      for (let i = 0; i < maxMistakes; i++) {
         const circle = document.createElement("div");
         circle.className = "circle";
-        mistakesEl.appendChild(circle);
+        mistakeTracker.appendChild(circle);
       }
-    }
-
-    function renderGrid() {
-      gridEl.innerHTML = "";
-      remainingWords.forEach(word => {
-        const tile = document.createElement("div");
-        tile.className = "tile";
-        tile.textContent = word;
-        tile.onclick = () => toggleSelect(tile, word);
-        gridEl.appendChild(tile);
-      });
     }
 
     function toggleSelect(tile, word) {
       if (tile.classList.contains("selected")) {
         tile.classList.remove("selected");
-        selectedWords = selectedWords.filter(w => w !== word);
-      } else {
-        if (selectedWords.length < 4) {
-          tile.classList.add("selected");
-          selectedWords.push(word);
-        }
+        selected = selected.filter(w => w !== word);
+      } else if (selected.length < 4) {
+        tile.classList.add("selected");
+        selected.push(word);
       }
     }
 
     function checkGuess() {
-      if (selectedWords.length !== 4) {
-        messageEl.textContent = "Select exactly 4 words.";
+      if (selected.length !== 4) {
+        feedback.textContent = "Select exactly four words.";
         return;
       }
 
-      let found = false;
+      const matchedCategory = categories.find(cat =>
+        cat.words.every(w => selected.includes(w)) &&
+        !found.includes(cat.name)
+      );
 
-      for (let group of solutionGroups) {
-        if (group.every(word => selectedWords.includes(word)) && !foundGroups.includes(group.toString())) {
-          found = true;
-          foundGroups.push(group.toString());
+      if (matchedCategory) {
+        // Add solved category to top
+        found.push(matchedCategory.name);
+        const bar = document.createElement("div");
+        bar.className = `bar ${matchedCategory.color}`;
 
-          // Display on top bar
-          const groupDiv = document.createElement("div");
-          groupDiv.className = "group-bar";
-          groupDiv.textContent = selectedWords.join(", ");
-          topBarEl.appendChild(groupDiv);
+        const title = document.createElement("div");
+        title.className = "category-title";
+        title.textContent = matchedCategory.name;
+        solvedDiv.appendChild(title);
 
-          // Remove from remainingWords
-          remainingWords = remainingWords.filter(word => !selectedWords.includes(word));
+        matchedCategory.words.forEach(w => {
+          const wordDiv = document.createElement("div");
+          wordDiv.textContent = w;
+          bar.appendChild(wordDiv);
+        });
 
-          messageEl.textContent = "✅ Correct!";
-          break;
-        }
-      }
+        solvedDiv.appendChild(bar);
 
-      if (!found) {
-        // Check if one away
-        let oneAway = false;
-        for (let group of solutionGroups) {
-          const matchCount = group.filter(word => selectedWords.includes(word)).length;
-          if (matchCount === 3 && !foundGroups.includes(group.toString())) {
-            oneAway = true;
-            break;
+        // Remove from grid
+        document.querySelectorAll(".tile").forEach(tile => {
+          if (selected.includes(tile.textContent)) {
+            tile.remove();
           }
+        });
+
+        feedback.textContent = "✅ Correct!";
+      } else {
+        // One away?
+        const oneAway = categories.find(cat =>
+          selected.filter(w => cat.words.includes(w)).length === 3 &&
+          !found.includes(cat.name)
+        );
+
+        if (oneAway) {
+          feedback.textContent = "Almost! You're one away.";
+        } else {
+          feedback.textContent = "❌ Incorrect group.";
+          mistakeTracker.children[mistakes].classList.add("used");
+          mistakes++;
         }
-
-        mistakes++;
-        renderMistakes();
-
-        if (mistakes >= maxMistakes) {
-          messageEl.textContent = "❌ Game Over. Correct groups were:";
-          solutionGroups.forEach(group => {
-            const bar = document.createElement("div");
-            bar.className = "group-bar";
-            bar.textContent = group.join(", ");
-            bar.style.backgroundColor = "#ccc";
-            topBarEl.appendChild(bar);
-          });
-          gridEl.innerHTML = "";
-          return;
-        }
-
-        messageEl.textContent = oneAway ? "⚠️ One away!" : "❌ Incorrect!";
       }
 
-      selectedWords = [];
-      renderGrid();
+      selected = [];
+      document.querySelectorAll(".tile").forEach(tile => tile.classList.remove("selected"));
+
+      if (mistakes >= maxMistakes) {
+        feedback.textContent = "Game over. Final answers revealed.";
+        revealRemainingAnswers();
+      }
+
+      if (found.length === 4) {
+        feedback.textContent = "🎉 All categories found!";
+      }
     }
 
-    renderGrid();
-    renderMistakes();
+    function revealRemainingAnswers() {
+      gridDiv.innerHTML = "";
+      categories.forEach(cat => {
+        if (!found.includes(cat.name)) {
+          const title = document.createElement("div");
+          title.className = "category-title";
+          title.textContent = cat.name;
+          solvedDiv.appendChild(title);
+
+          const bar = document.createElement("div");
+          bar.className = `bar ${cat.color}`;
+          cat.words.forEach(w => {
+            const wordDiv = document.createElement("div");
+            wordDiv.textContent = w;
+            bar.appendChild(wordDiv);
+          });
+          solvedDiv.appendChild(bar);
+        }
+      });
+    }
+
+    init();
   </script>
+
 </body>
 </html>
