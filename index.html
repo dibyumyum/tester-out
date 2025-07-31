@@ -206,12 +206,24 @@
       document.querySelectorAll(".tile").forEach(tile => tile.classList.remove("selected"));
 
       if (mistakes >= maxMistakes) {
-        feedback.textContent = "Game over. Final answers revealed.";
+        feedback.textContent = "Next Time!";
         revealRemainingAnswers();
       }
 
       if (found.length === 4) {
-        feedback.textContent = "🎉 All categories found!";
+        if (mistakes === 0) {
+           feedback.textContent = "Perfect!";
+        } else if (mistakes >= 1 && mistakes <= 2) {
+           feedback.textContent = "Excellent!";
+        } else if (mistakes >= 3 && mistakes <= 4) {
+           feedback.textContent = "Great!";
+        } else if (mistakes >= 5 && mistakes <= 6) {
+           feedback.textContent = "Solid!";
+        } else if (mistakes >= 7 && mistakes <= 8) {
+           feedback.textContent = "Good!";
+        } else if (mistakes === 9) {
+           feedback.textContent = "Phew!";
+        }
       }
     }
 
