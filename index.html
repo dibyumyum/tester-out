@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Connections Game</title>
+  <style>
+    body { font-family: sans-serif; text-align: center; margin: 30px; }
+    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: auto; }
+    .tile { border: 1px solid #ccc; padding: 15px; cursor: pointer; user-select: none; background-color: #f2f2f2; }
+    .selected { background-color: #ffeeba; }
+    .group { margin: 20px 0; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>Connections</h1>
+  <div class="grid" id="grid">
+    <!-- Words will go here -->
+  </div>
+
+  <div id="groupReveal"></div>
+
+  <script>
+    const words = [
+      "cantare", "clamare", "dicere", "susurrare",  // Vocal verbs
+      "facere", "creare", "interficere", "iudicare", // Verbs of making/doing
+      "stare", "currere", "cadere", "caedere",       // Movement/posture
+      "dare", "putare", "occidere", "caedere"        // Double accusative / mental action
+    ];
+
+    const solution = [
+      ["cantare", "clamare", "dicere", "susurrare"],
+      ["facere", "creare", "interficere", "iudicare"],
+      ["stare", "currere", "cadere", "caedere"],
+      ["dare", "putare", "occidere", "caedere"]
+    ];
+
+    let selected = [];
+    let foundGroups = [];
+
+    function shuffle(arr) {
+      return arr.sort(() => Math.random() - 0.5);
+    }
+
+    function createGrid() {
+      const grid = document.getElementById("grid");
+      grid.innerHTML = "";
+      shuffle(words).forEach(word => {
+        const div = document.createElement("div");
+        div.className = "tile";
+        div.textContent = word;
+        div.onclick = () => selectTile(div, word);
+        grid.appendChild(div);
+      });
+    }
+
+    function selectTile(div, word) {
+      if (div.classList.contains("selected")) {
+        div.classList.remove("selected");
+        selected = selected.filter(w => w !== word);
+      } else {
+        if (selected.length < 4) {
+          div.classList.add("selected");
+          selected.push(word);
+        }
+      }
+
+      if (selected.length === 4) {
+        checkGroup();
+      }
+    }
+
+    function checkGroup() {
+      let match = solution.find(group => group.every(word => selected.includes(word)));
+
+      if (match && !foundGroups.includes(match.toString())) {
+        foundGroups.push(match.toString());
+        document.getElementById("groupReveal").innerHTML += `<div class="group">✔️ Group found: ${match.join(", ")}</div>`;
+        document.querySelectorAll(".selected").forEach(div => {
+          div.style.backgroundColor = "#a3e635";
+          div.classList.remove("selected");
+        });
+      } else {
+        alert("❌ Not a valid group. Try again.");
+        document.querySelectorAll(".selected").forEach(div => div.classList.remove("selected"));
+      }
+
+      selected = [];
+    }
+
+    createGrid();
+  </script>
+</body>
+</html>
