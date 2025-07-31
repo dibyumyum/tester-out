@@ -21,10 +21,10 @@
       font-weight: bold;
     }
 
-    .green { background-color: #6aaa64; }
-    .yellow { background-color: #c9b458; }
-    .blue { background-color: #85c1e9; }
-    .purple { background-color: #af7ac5; }
+    .yellow { background-color: #f5e07e; }
+    .green { background-color: #a7c268; }
+    .blue { background-color: #b4c3eb; }
+    .purple { background-color: #b283c1; }
 
     .category-title {
       font-weight: bold;
@@ -122,7 +122,7 @@
     const solvedDiv = document.getElementById("solved-categories");
     const mistakeTracker = document.getElementById("mistake-tracker");
 
-    function init() {
+    function game() {
       puzzleWords.forEach(word => {
         const div = document.createElement("div");
         div.className = "tile";
@@ -236,7 +236,7 @@
       });
     }
 
-    init();
+    game();
   </script>
 
 </body>
