@@ -86,15 +86,10 @@
 </head>
 <body>
 
-  <h1>Connections</h1>
-
-  <!-- Solved categories will go here -->
+  <!-- Interface -->
   <div id="solved-categories"></div>
-
-  <!-- Puzzle grid -->
   <div class="grid" id="grid"></div>
-
-  <button onclick="checkGuess()">Check</button>
+  <button onclick="submitGuess()">Submit</button>
   <div class="feedback" id="feedback"></div>
 
   <!-- Mistake tracker -->
@@ -148,7 +143,7 @@
       }
     }
 
-    function checkGuess() {
+    function submitGuess() {
       if (selected.length !== 4) {
         feedback.textContent = "Select exactly four words.";
         return;
