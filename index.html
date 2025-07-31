@@ -4,90 +4,219 @@
   <meta charset="UTF-8">
   <title>Connections Game</title>
   <style>
-    body { font-family: sans-serif; text-align: center; margin: 30px; }
-    .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; max-width: 600px; margin: auto; }
-    .tile { border: 1px solid #ccc; padding: 15px; cursor: pointer; user-select: none; background-color: #f2f2f2; }
-    .selected { background-color: #ffeeba; }
-    .group { margin: 20px 0; font-weight: bold; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 20px;
+    }
+
+    .top-bar {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .group-bar {
+      background-color: gold;
+      padding: 8px;
+      margin: 5px;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto 20px;
+    }
+
+    .tile {
+      border: 2px solid #ccc;
+      padding: 15px;
+      cursor: pointer;
+      background-color: #f0f0f0;
+      border-radius: 6px;
+      user-select: none;
+      font-weight: bold;
+    }
+
+    .tile.selected {
+      background-color: #ffeeba;
+    }
+
+    #message {
+      margin: 10px;
+      font-weight: bold;
+    }
+
+    .mistakes {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .circle {
+      width: 20px;
+      height: 20px;
+      background-color: grey;
+      border-radius: 50%;
+    }
+
+    button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      font-weight: bold;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1976d2;
+    }
   </style>
 </head>
 <body>
-  <h1>Connections</h1>
-  <div class="grid" id="grid">
-    <!-- Words will go here -->
-  </div>
 
-  <div id="groupReveal"></div>
+  <h1>Connections Game</h1>
+
+  <div class="top-bar" id="topBar"></div>
+
+  <div class="grid" id="grid"></div>
+
+  <button onclick="checkGuess()">Check</button>
+  <div id="message"></div>
+
+  <div class="mistakes" id="mistakesBar"></div>
 
   <script>
-    const words = [
-      "cantare", "clamare", "dicere", "susurrare",  // Vocal verbs
-      "facere", "creare", "interficere", "iudicare", // Verbs of making/doing
-      "stare", "currere", "cadere", "caedere",       // Movement/posture
-      "dare", "putare", "occidere", "caedere"        // Double accusative / mental action
+    const allWords = [
+      "cantare", "clamare", "dicere", "susurrare",  // Group 1
+      "facere", "creare", "interficere", "iudicare", // Group 2
+      "stare", "currere", "cadere", "caedere",       // Group 3
+      "dare", "putare", "occidere", "caedere"        // Group 4
     ];
 
-    const solution = [
+    const solutionGroups = [
       ["cantare", "clamare", "dicere", "susurrare"],
       ["facere", "creare", "interficere", "iudicare"],
       ["stare", "currere", "cadere", "caedere"],
       ["dare", "putare", "occidere", "caedere"]
     ];
 
-    let selected = [];
+    let remainingWords = [...allWords]; // keeps order fixed
+    let selectedWords = [];
     let foundGroups = [];
+    let maxMistakes = 10;
+    let mistakes = 0;
 
-    function shuffle(arr) {
-      return arr.sort(() => Math.random() - 0.5);
+    const gridEl = document.getElementById("grid");
+    const topBarEl = document.getElementById("topBar");
+    const messageEl = document.getElementById("message");
+    const mistakesEl = document.getElementById("mistakesBar");
+
+    function renderMistakes() {
+      mistakesEl.innerHTML = "";
+      for (let i = 0; i < maxMistakes - mistakes; i++) {
+        const circle = document.createElement("div");
+        circle.className = "circle";
+        mistakesEl.appendChild(circle);
+      }
     }
 
-    function createGrid() {
-      const grid = document.getElementById("grid");
-      grid.innerHTML = "";
-      shuffle(words).forEach(word => {
-        const div = document.createElement("div");
-        div.className = "tile";
-        div.textContent = word;
-        div.onclick = () => selectTile(div, word);
-        grid.appendChild(div);
+    function renderGrid() {
+      gridEl.innerHTML = "";
+      remainingWords.forEach(word => {
+        const tile = document.createElement("div");
+        tile.className = "tile";
+        tile.textContent = word;
+        tile.onclick = () => toggleSelect(tile, word);
+        gridEl.appendChild(tile);
       });
     }
 
-    function selectTile(div, word) {
-      if (div.classList.contains("selected")) {
-        div.classList.remove("selected");
-        selected = selected.filter(w => w !== word);
+    function toggleSelect(tile, word) {
+      if (tile.classList.contains("selected")) {
+        tile.classList.remove("selected");
+        selectedWords = selectedWords.filter(w => w !== word);
       } else {
-        if (selected.length < 4) {
-          div.classList.add("selected");
-          selected.push(word);
+        if (selectedWords.length < 4) {
+          tile.classList.add("selected");
+          selectedWords.push(word);
+        }
+      }
+    }
+
+    function checkGuess() {
+      if (selectedWords.length !== 4) {
+        messageEl.textContent = "Select exactly 4 words.";
+        return;
+      }
+
+      let found = false;
+
+      for (let group of solutionGroups) {
+        if (group.every(word => selectedWords.includes(word)) && !foundGroups.includes(group.toString())) {
+          found = true;
+          foundGroups.push(group.toString());
+
+          // Display on top bar
+          const groupDiv = document.createElement("div");
+          groupDiv.className = "group-bar";
+          groupDiv.textContent = selectedWords.join(", ");
+          topBarEl.appendChild(groupDiv);
+
+          // Remove from remainingWords
+          remainingWords = remainingWords.filter(word => !selectedWords.includes(word));
+
+          messageEl.textContent = "✅ Correct!";
+          break;
         }
       }
 
-      if (selected.length === 4) {
-        checkGroup();
+      if (!found) {
+        // Check if one away
+        let oneAway = false;
+        for (let group of solutionGroups) {
+          const matchCount = group.filter(word => selectedWords.includes(word)).length;
+          if (matchCount === 3 && !foundGroups.includes(group.toString())) {
+            oneAway = true;
+            break;
+          }
+        }
+
+        mistakes++;
+        renderMistakes();
+
+        if (mistakes >= maxMistakes) {
+          messageEl.textContent = "❌ Game Over. Correct groups were:";
+          solutionGroups.forEach(group => {
+            const bar = document.createElement("div");
+            bar.className = "group-bar";
+            bar.textContent = group.join(", ");
+            bar.style.backgroundColor = "#ccc";
+            topBarEl.appendChild(bar);
+          });
+          gridEl.innerHTML = "";
+          return;
+        }
+
+        messageEl.textContent = oneAway ? "⚠️ One away!" : "❌ Incorrect!";
       }
+
+      selectedWords = [];
+      renderGrid();
     }
 
-    function checkGroup() {
-      let match = solution.find(group => group.every(word => selected.includes(word)));
-
-      if (match && !foundGroups.includes(match.toString())) {
-        foundGroups.push(match.toString());
-        document.getElementById("groupReveal").innerHTML += `<div class="group">✔️ Group found: ${match.join(", ")}</div>`;
-        document.querySelectorAll(".selected").forEach(div => {
-          div.style.backgroundColor = "#a3e635";
-          div.classList.remove("selected");
-        });
-      } else {
-        alert("❌ Not a valid group. Try again.");
-        document.querySelectorAll(".selected").forEach(div => div.classList.remove("selected"));
-      }
-
-      selected = [];
-    }
-
-    createGrid();
+    renderGrid();
+    renderMistakes();
   </script>
+
 </body>
 </html>
