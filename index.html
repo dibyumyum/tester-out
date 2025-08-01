@@ -79,7 +79,8 @@
     button {
       padding: 10px 20px;
       margin-top: 15px;
-      font-size: 1em;
+      font-family: georgia;
+      font-size: 1px;
     }
   </style>
 </head>
@@ -190,9 +191,9 @@
           feedback.textContent = "Almost! You're one away.";
         } else {
           feedback.textContent = "❌ Incorrect group.";
+        }
           mistakeTracker.children[mistakes].classList.add("used");
           mistakes++;
-        }
       }
 
       selected = [];
