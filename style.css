@@ -5,19 +5,28 @@ body {
 }
 
 .bar {
+  grid-column: span 4;
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 10px 0px;
   padding: 10px;
   border-radius: 8px;
+  margin: 5px 0;
   color: black;
+  font-weight: bold;
 }
 
 .yellow { background-color: #f5e07e; }
 .green { background-color: #a7c268; }
 .blue { background-color: #b4c3eb; }
 .purple { background-color: #b283c1; }
+
+#solved-categories {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
 
 .category-title {
   font-weight: bold;
