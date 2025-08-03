@@ -105,7 +105,7 @@ function submitGuess() {
        feedback.textContent = "Solid!";
     } else if (mistakes >= 7 && mistakes <= 8) {
        feedback.textContent = "Good!";
-    } else if (mistakes === 9) {
+    } else if (mistakes === maxMistakes - 1) {
        feedback.textContent = "Phew!";
     }
   }
