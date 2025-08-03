@@ -48,12 +48,12 @@ function submitGuess() {
     // Add solved category to top
     found.push(matchedCategory.name);
     const bar = document.createElement("div");
-    bar.className = `bar ${matchedCategory.color}`;
+    bar.className = bar ${matchedCategory.color};
 
-    const bar = document.createElement("div");
-    bar.className = `bar ${matchedCategory.color}`;
-    bar.textContent = `${matchedCategory.name}: ${matchedCategory.words.join(", ")}`;
-    solvedDiv.appendChild(bar);
+    const title = document.createElement("div");
+    title.className = "category-title";
+    title.textContent = matchedCategory.name;
+    solvedDiv.appendChild(title);
 
     matchedCategory.words.forEach(w => {
       const wordDiv = document.createElement("div");
@@ -115,13 +115,13 @@ function revealRemainingAnswers() {
   gridDiv.innerHTML = "";
   categories.forEach(cat => {
     if (!found.includes(cat.name)) {
-      const bar = document.createElement("div");
-      bar.className = `bar ${cat.color}`;
-      bar.textContent = `${cat.name}: ${cat.words.join(", ")}`;
-      solvedDiv.appendChild(bar);
+      const title = document.createElement("div");
+      title.className = "category-title";
+      title.textContent = cat.name;
+      solvedDiv.appendChild(title);
 
       const bar = document.createElement("div");
-      bar.className = `bar ${cat.color}`;
+      bar.className = bar ${cat.color};
       cat.words.forEach(w => {
         const wordDiv = document.createElement("div");
         wordDiv.textContent = w;
