@@ -8,10 +8,10 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin: 10px 0;
+  margin: 10px 0px;
   padding: 10px;
   border-radius: 8px;
-  color: white;
+  color: black;
 }
 
 .yellow { background-color: #f5e07e; }
@@ -27,6 +27,7 @@ body {
 .grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
   gap: 10px;
   max-width: 600px;
   margin: 20px auto;
