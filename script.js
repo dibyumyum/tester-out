@@ -45,30 +45,32 @@ function submitGuess() {
   );
 
   if (matchedCategory) {
-    // Add solved category to top
-    found.push(matchedCategory.name);
-    const bar = document.createElement("div");
-    bar.className = `bar ${matchedCategory.color}`;
+  found.push(matchedCategory.name);
 
-    const title = document.createElement("div");
-    title.className = "category-title";
-    title.textContent = matchedCategory.name;
-    solvedDiv.appendChild(title);
+  const bar = document.createElement("div");
+  bar.className = `bar ${matchedCategory.color}`;
 
-    matchedCategory.words.forEach(w => {
+  const titleTile = document.createElement("div");
+  titleTile.className = "tile category-title";
+  titleTile.textContent = matchedCategory.name;
+  bar.appendChild(titleTile);
+
+  matchedCategory.words.forEach(w => {
+    if (w !== matchedCategory.name) { // just in case
       const wordDiv = document.createElement("div");
+      wordDiv.className = "tile";
       wordDiv.textContent = w;
       bar.appendChild(wordDiv);
-    });
+    }
+  });
 
-    solvedDiv.appendChild(bar);
+  solvedDiv.appendChild(bar);
 
-    // Remove from grid
-    document.querySelectorAll(".tile").forEach(tile => {
-      if (selected.includes(tile.textContent)) {
-        tile.remove();
-      }
-    });
+  document.querySelectorAll(".tile").forEach(tile => {
+    if (selected.includes(tile.textContent)) {
+      tile.remove();
+    }
+  });
 
   } else {
     // One away?
@@ -115,18 +117,23 @@ function revealRemainingAnswers() {
   gridDiv.innerHTML = "";
   categories.forEach(cat => {
     if (!found.includes(cat.name)) {
-      const title = document.createElement("div");
-      title.className = "category-title";
-      title.textContent = cat.name;
-      solvedDiv.appendChild(title);
-
       const bar = document.createElement("div");
       bar.className = `bar ${cat.color}`;
+      
+      const titleTile = document.createElement("div");
+      titleTile.className = "tile category-title";
+      titleTile.textContent = cat.name;
+      bar.appendChild(titleTile);
+      
       cat.words.forEach(w => {
-        const wordDiv = document.createElement("div");
-        wordDiv.textContent = w;
-        bar.appendChild(wordDiv);
+        if (w !== cat.name) {
+          const wordDiv = document.createElement("div");
+          wordDiv.className = "tile";
+          wordDiv.textContent = w;
+          bar.appendChild(wordDiv);
+        }
       });
+      
       solvedDiv.appendChild(bar);
     }
   });
