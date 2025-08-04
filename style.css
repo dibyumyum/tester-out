@@ -36,7 +36,7 @@ body {
 .tile {
   padding: 15px;
   background-color: #eaeaea;
-  color: #000000
+  color: #000000;
   cursor: pointer;
   border-radius: 8px;
   user-select: none;
@@ -44,7 +44,7 @@ body {
 
 .tile.selected {
   background-color: #585858;
-  color: #ffffff
+  color: #ffffff;
 }
 
 .feedback {
