@@ -5,13 +5,16 @@ body {
 }
 
 .bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* ✅ 4-block row */
+  gap: 10px;
   justify-content: center;
   align-items: center;
-  margin: 10px 0px;
+  margin: 10px auto;
   padding: 10px;
   border-radius: 8px;
   color: black;
+  max-width: 600px;
 }
 
 .yellow { background-color: #f5e07e; }
