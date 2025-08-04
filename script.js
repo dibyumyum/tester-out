@@ -48,7 +48,7 @@ function submitGuess() {
     // Add solved category to top
     found.push(matchedCategory.name);
     const bar = document.createElement("div");
-    bar.className = bar ${matchedCategory.color};
+    bar.className = `bar ${matchedCategory.color}`;
 
     const title = document.createElement("div");
     title.className = "category-title";
@@ -121,7 +121,7 @@ function revealRemainingAnswers() {
       solvedDiv.appendChild(title);
 
       const bar = document.createElement("div");
-      bar.className = bar ${cat.color};
+      bar.className = `bar ${cat.color}`;
       cat.words.forEach(w => {
         const wordDiv = document.createElement("div");
         wordDiv.textContent = w;
