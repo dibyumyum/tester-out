@@ -53,6 +53,18 @@ body {
   font-weight: bold;
 }
 
+.mistakes-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.mistake-label {
+  font-weight: bold;
+}
+
 .mistakes {
   display: flex;
   justify-content: center;
